@@ -159,6 +159,18 @@ function updateUI() {
     } else {
         emptyState.classList.add('hidden');
         topPointer.classList.add('visible');
+
+        // Position TOP pointer next to the topmost element
+        requestAnimationFrame(() => {
+            const topElement = stackContainer.querySelector('.stack-element');
+            if (topElement) {
+                const wrapper = document.querySelector('.stack-3d-wrapper');
+                const wrapperRect = wrapper.getBoundingClientRect();
+                const elRect = topElement.getBoundingClientRect();
+                const topOffset = elRect.top - wrapperRect.top + (elRect.height / 2) - 20;
+                topPointer.style.top = topOffset + 'px';
+            }
+        });
     }
 }
 
@@ -168,11 +180,12 @@ function renderStack() {
     const elements = stackContainer.querySelectorAll('.stack-element');
     elements.forEach(el => el.remove());
 
-    // Re-add elements
-    stack.forEach((val, i) => {
-        const el = createStackElement(val, i);
-        stackContainer.insertBefore(el, stackContainer.firstChild);
-    });
+    // Re-add elements (newest first, so top of stack is at top visually)
+    const base = stackContainer.querySelector('.stack-base');
+    for (let i = stack.length - 1; i >= 0; i--) {
+        const el = createStackElement(stack[i], i);
+        stackContainer.insertBefore(el, base);
+    }
 
     updateUI();
 }
@@ -630,4 +643,228 @@ function renderCode(operation) {
 
         codeBlock.appendChild(span);
     });
+}
+
+/* ============================================
+   EXPRESSION CONVERTER — Infix to Postfix/Prefix
+   ============================================ */
+
+let convertMode = 'postfix';
+
+// Operator precedence
+function precedence(op) {
+    if (op === '+' || op === '-') return 1;
+    if (op === '*' || op === '/') return 2;
+    if (op === '^') return 3;
+    return 0;
+}
+
+// Check if character is operator
+function isOperator(ch) {
+    return ['+', '-', '*', '/', '^'].includes(ch);
+}
+
+// Check if character is operand (letter or digit)
+function isOperand(ch) {
+    return /[a-zA-Z0-9]/.test(ch);
+}
+
+// Set conversion mode
+function setConvertMode(mode) {
+    convertMode = mode;
+    document.getElementById('modePostfix').classList.toggle('active', mode === 'postfix');
+    document.getElementById('modePrefix').classList.toggle('active', mode === 'prefix');
+}
+
+// Load example expressions
+const exampleExpressions = [
+    'A+B*C',
+    'A+B*(C-D)/E',
+    '(A+B)*(C-D)',
+    'A*B+C/D',
+    'A+(B*C-(D/E^F)*G)*H',
+];
+let exampleIndex = 0;
+
+function loadExample() {
+    const input = document.getElementById('infixInput');
+    input.value = exampleExpressions[exampleIndex];
+    exampleIndex = (exampleIndex + 1) % exampleExpressions.length;
+}
+
+// ---- Infix to Postfix Conversion ----
+function infixToPostfix(expression) {
+    const stack = [];
+    let output = '';
+    const steps = [];
+
+    for (let i = 0; i < expression.length; i++) {
+        const ch = expression[i];
+        if (ch === ' ') continue;
+
+        if (isOperand(ch)) {
+            output += ch;
+            steps.push({
+                symbol: ch,
+                stack: [...stack].reverse().join(' '),
+                output: output,
+                action: `${ch} is operand → add to output`
+            });
+        } else if (ch === '(') {
+            stack.push(ch);
+            steps.push({
+                symbol: ch,
+                stack: [...stack].reverse().join(' '),
+                output: output,
+                action: `( → push to stack`
+            });
+        } else if (ch === ')') {
+            while (stack.length > 0 && stack[stack.length - 1] !== '(') {
+                output += stack.pop();
+            }
+            stack.pop(); // Remove '('
+            steps.push({
+                symbol: ch,
+                stack: [...stack].reverse().join(' '),
+                output: output,
+                action: `) → pop until (, add to output`
+            });
+        } else if (isOperator(ch)) {
+            while (
+                stack.length > 0 &&
+                stack[stack.length - 1] !== '(' &&
+                ((ch !== '^' && precedence(stack[stack.length - 1]) >= precedence(ch)) ||
+                 (ch === '^' && precedence(stack[stack.length - 1]) > precedence(ch)))
+            ) {
+                output += stack.pop();
+            }
+            stack.push(ch);
+            steps.push({
+                symbol: ch,
+                stack: [...stack].reverse().join(' '),
+                output: output,
+                action: `${ch} is operator → check precedence, push`
+            });
+        }
+    }
+
+    // Pop remaining operators
+    while (stack.length > 0) {
+        const op = stack.pop();
+        output += op;
+        steps.push({
+            symbol: `Pop '${op}'`,
+            stack: stack.length > 0 ? [...stack].reverse().join(' ') : '(empty)',
+            output: output,
+            action: `Pop remaining '${op}' from stack`
+        });
+    }
+
+    return { result: output, steps: steps };
+}
+
+// ---- Infix to Prefix Conversion ----
+function infixToPrefix(expression) {
+    // Step 1: Reverse the expression and swap parentheses
+    let reversed = expression.split('').reverse().map(ch => {
+        if (ch === '(') return ')';
+        if (ch === ')') return '(';
+        return ch;
+    }).join('');
+
+    // Step 2: Get postfix of reversed
+    const postfixResult = infixToPostfix(reversed);
+
+    // Step 3: Reverse the postfix result
+    const prefixResult = postfixResult.result.split('').reverse().join('');
+
+    // Build steps for prefix display
+    const steps = [];
+    steps.push({
+        symbol: 'Reversed',
+        stack: '—',
+        output: reversed,
+        action: `Reverse infix & swap () → "${reversed}"`
+    });
+
+    postfixResult.steps.forEach(s => {
+        steps.push({
+            symbol: s.symbol,
+            stack: s.stack,
+            output: s.output,
+            action: s.action
+        });
+    });
+
+    steps.push({
+        symbol: 'Reverse',
+        stack: '—',
+        output: prefixResult,
+        action: `Reverse postfix result → PREFIX`
+    });
+
+    return { result: prefixResult, steps: steps };
+}
+
+// ---- Main Convert Function ----
+function convertExpression() {
+    const input = document.getElementById('infixInput').value.trim();
+    const resultEl = document.getElementById('converterResult');
+    const infoEl = document.getElementById('converterInfo');
+    const stepsArea = document.getElementById('converterStepsArea');
+    const stepsBody = document.getElementById('stepsBody');
+
+    if (!input) {
+        resultEl.textContent = '⚠ Please enter an expression!';
+        resultEl.style.color = '#ef4444';
+        infoEl.textContent = '';
+        stepsArea.style.display = 'none';
+        return;
+    }
+
+    // Validate expression
+    const validChars = /^[a-zA-Z0-9+\-*/^() ]+$/;
+    if (!validChars.test(input)) {
+        resultEl.textContent = '❌ Invalid characters!';
+        resultEl.style.color = '#ef4444';
+        infoEl.textContent = 'Use only: A-Z, a-z, 0-9, +, -, *, /, ^, (, )';
+        stepsArea.style.display = 'none';
+        return;
+    }
+
+    let conversion;
+    if (convertMode === 'postfix') {
+        conversion = infixToPostfix(input);
+        infoEl.innerHTML = `<strong>Infix:</strong> ${input}<br><strong>Postfix:</strong> ${conversion.result}<br><em>Postfix में operator, operands के बाद आता है।</em>`;
+    } else {
+        conversion = infixToPrefix(input);
+        infoEl.innerHTML = `<strong>Infix:</strong> ${input}<br><strong>Prefix:</strong> ${conversion.result}<br><em>Prefix में operator, operands से पहले आता है।</em>`;
+    }
+
+    resultEl.textContent = conversion.result;
+    resultEl.style.color = '';
+
+    // Populate steps table with animation
+    stepsBody.innerHTML = '';
+    stepsArea.style.display = 'block';
+
+    conversion.steps.forEach((step, i) => {
+        const tr = document.createElement('tr');
+        const isLast = i === conversion.steps.length - 1;
+        if (isLast) tr.classList.add('step-highlight');
+        tr.style.animationDelay = `${i * 0.08}s`;
+
+        tr.innerHTML = `
+            <td>${i + 1}</td>
+            <td>${step.symbol}</td>
+            <td class="stack-col">${step.stack || '(empty)'}</td>
+            <td class="output-col">${step.output}</td>
+        `;
+        stepsBody.appendChild(tr);
+    });
+
+    // Scroll to steps
+    setTimeout(() => {
+        stepsArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 300);
 }

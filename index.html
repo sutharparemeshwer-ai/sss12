@@ -12,7 +12,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 
 <body>
@@ -209,6 +209,63 @@
             </div>
         </section>
 
+        <!-- Infix to Postfix/Prefix Converter -->
+        <section class="converter-section">
+            <div class="section-header centered">
+                <h2>
+                    <span class="section-icon">🔄</span>
+                    Expression Converter / व्यंजक रूपांतरण (Practical)
+                </h2>
+            </div>
+            <div class="converter-card">
+                <div class="converter-top">
+                    <div class="converter-input-area">
+                        <label class="converter-label">Enter Infix Expression / इन्फिक्स व्यंजक दर्ज करें:</label>
+                        <div class="converter-input-row">
+                            <input type="text" id="infixInput" class="converter-input" placeholder="e.g. A+B*(C-D)/E" autocomplete="off" spellcheck="false">
+                            <div class="converter-mode-toggle">
+                                <button class="mode-btn active" id="modePostfix" onclick="setConvertMode('postfix')">Postfix</button>
+                                <button class="mode-btn" id="modePrefix" onclick="setConvertMode('prefix')">Prefix</button>
+                            </div>
+                        </div>
+                        <div class="converter-btn-row">
+                            <button class="btn btn-push converter-btn" onclick="convertExpression()">
+                                <span class="btn-icon">⚡</span> Convert
+                            </button>
+                            <button class="btn converter-btn converter-example-btn" onclick="loadExample()">
+                                <span class="btn-icon">📝</span> Load Example
+                            </button>
+                        </div>
+                    </div>
+                    <div class="converter-result-area">
+                        <div class="result-label">Result / परिणाम:</div>
+                        <div class="result-output" id="converterResult">—</div>
+                        <div class="result-info" id="converterInfo"></div>
+                    </div>
+                </div>
+                <!-- Step-by-step visualization -->
+                <div class="converter-steps-area" id="converterStepsArea" style="display: none;">
+                    <div class="steps-header">
+                        <h3>📊 Step-by-Step Conversion / चरण-दर-चरण रूपांतरण</h3>
+                    </div>
+                    <div class="steps-table-wrapper">
+                        <table class="steps-table" id="stepsTable">
+                            <thead>
+                                <tr>
+                                    <th>Step</th>
+                                    <th>Symbol Scanned</th>
+                                    <th>Stack</th>
+                                    <th>Output</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stepsBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Key Concepts -->
         <section class="concepts-section">
             <div class="section-header centered">
@@ -270,7 +327,7 @@
         <p>Made with ❤️ for RBSE Class 12th Students | @ paremeshwer suthar</p>
     </footer>
 
-    <script src="script.js?v=2"></script>
+    <script src="script.js?v=3"></script>
 </body>
 
 </html>
