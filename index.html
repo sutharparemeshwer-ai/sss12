@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Interactive 3D Stack Data Structure Visualization for Class 12th RBSE Students - Learn Push, Pop, Peek operations with animations">
+    <title>Sarswati sen sec school | Class 12th by rocky sir</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=2">
+</head>
+
+<body>
+
+    <!-- Animated Background Particles -->
+    <div class="bg-particles" id="bgParticles"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <span class="logo-bracket">[</span>
+                    <span class="logo-text">S</span>
+                    <span class="logo-bracket">]</span>
+                </div>
+                <div class="logo-title">
+                    <h1>Saraswati sen sec school</h1>
+                    <p class="subtitle">Class 12th • by rocky sir • stack</p>
+                </div>
+            </div>
+            <div class="header-badge">
+                <span class="badge-dot"></span>
+                Interactive Learning
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Info Banner -->
+        <div class="info-banner">
+            <div class="info-icon">💡</div>
+            <div class="info-text">
+                <strong>Stack क्या है?</strong> — Stack एक <em>LIFO (Last In, First Out)</em> data structure है। जैसे
+                plates का stack — जो plate सबसे ऊपर रखी जाती है, वही सबसे पहले निकलती है।
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+
+            <!-- Left Column: Stack Visualization -->
+            <div class="stack-section">
+                <div class="section-header">
+                    <h2>
+                        <span class="section-icon">📦</span>
+                        Stack Visualization
+                    </h2>
+                    <div class="stack-counter">
+                        <span id="stackSize">0</span> / <span>5</span>
+                    </div>
+                </div>
+
+                <!-- 3D Stack Container -->
+                <div class="stack-3d-wrapper">
+                    <div class="stack-3d-scene">
+                        <div class="stack-container" id="stackContainer">
+                            <!-- Stack elements will be inserted here by JS -->
+                            <div class="stack-base">
+                                <div class="base-label">STACK BASE</div>
+                            </div>
+                        </div>
+                        <!-- TOP Pointer -->
+                        <div class="top-pointer" id="topPointer">
+                            <div class="pointer-arrow">➤</div>
+                            <div class="pointer-label">TOP</div>
+                        </div>
+                    </div>
+                    <!-- Empty State -->
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-icon">📭</div>
+                        <p>Stack is Empty</p>
+                        <span>Push an element to begin!</span>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="controls-card">
+                    <div class="input-row">
+                        <div class="input-wrapper">
+                            <input type="text" id="inputValue" placeholder="Enter value..." maxlength="10"
+                                autocomplete="off">
+                            <kbd>Enter</kbd>
+                        </div>
+                        <button class="btn btn-push" id="btnPush" onclick="handlePush()">
+                            <span class="btn-icon">⬆</span> PUSH
+                        </button>
+                    </div>
+                    <div class="btn-row">
+                        <button class="btn btn-pop" id="btnPop" onclick="handlePop()">
+                            <span class="btn-icon">⬇</span> POP
+                        </button>
+                        <button class="btn btn-peek" id="btnPeek" onclick="handlePeek()">
+                            <span class="btn-icon">👁</span> PEEK
+                        </button>
+                        <button class="btn btn-check" id="btnIsEmpty" onclick="handleIsEmpty()">
+                            <span class="btn-icon">❓</span> isEmpty
+                        </button>
+                        <button class="btn btn-isfull" id="btnIsFull" onclick="handleIsFull()">
+                            <span class="btn-icon">📦</span> isFull
+                        </button>
+                        <button class="btn btn-display" id="btnDisplay" onclick="handleDisplay()">
+                            <span class="btn-icon">📋</span> DISPLAY
+                        </button>
+                        <button class="btn btn-clear" id="btnClear" onclick="handleClear()">
+                            <span class="btn-icon">🗑</span> CLEAR
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Code + Log -->
+            <div class="right-column">
+
+                <!-- Code Panel -->
+                <div class="code-section">
+                    <div class="section-header">
+                        <h2>
+                            <span class="section-icon">💻</span>
+                            Algorithm
+                        </h2>
+                        <div class="lang-toggle">
+                            <button class="lang-btn active" data-lang="cpp" onclick="switchLang('cpp')">C++</button>
+                            <button class="lang-btn" data-lang="python" onclick="switchLang('python')">Python</button>
+                        </div>
+                    </div>
+                    <div class="code-card">
+                        <div class="code-tab-bar">
+                            <div class="code-dots">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                            </div>
+                            <span class="code-filename" id="codeFilename">stack.cpp</span>
+                        </div>
+                        <pre class="code-block" id="codeBlock">
+                            <!-- Code lines will be inserted by JS -->
+                        </pre>
+                    </div>
+                </div>
+
+                <!-- Operation Log -->
+                <div class="log-section">
+                    <div class="section-header">
+                        <h2>
+                            <span class="section-icon">📋</span>
+                            Operation Log
+                        </h2>
+                        <button class="log-clear-btn" onclick="clearLog()">Clear</button>
+                    </div>
+                    <div class="log-card" id="logCard">
+                        <div class="log-entry log-info">
+                            <span class="log-time">--:--</span>
+                            <span class="log-msg">Ready! Start pushing elements to the stack.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real World Examples -->
+        <section class="examples-section">
+            <div class="section-header centered">
+                <h2>
+                    <span class="section-icon">🌍</span>
+                    Real-World Examples of Stack
+                </h2>
+            </div>
+            <div class="examples-grid">
+                <div class="example-card" style="--accent: #f472b6;">
+                    <div class="example-icon">🍽️</div>
+                    <h3>Stack of Plates</h3>
+                    <p>Cafeteria में plates का stack — सबसे ऊपर वाली plate पहले उठाई जाती है। यही LIFO principle है!</p>
+                </div>
+                <div class="example-card" style="--accent: #60a5fa;">
+                    <div class="example-icon">🔙</div>
+                    <h3>Browser Back Button</h3>
+                    <p>जब आप websites browse करते हैं, हर page stack में push होता है। Back button press करने पर top
+                        page pop होता है।</p>
+                </div>
+                <div class="example-card" style="--accent: #34d399;">
+                    <div class="example-icon">↩️</div>
+                    <h3>Undo / Ctrl+Z</h3>
+                    <p>Text editor में हर action stack में save होता है। Ctrl+Z (Undo) करने पर last action pop होकर
+                        reverse होता है।</p>
+                </div>
+                <div class="example-card" style="--accent: #fbbf24;">
+                    <div class="example-icon">📚</div>
+                    <h3>Stack of Books</h3>
+                    <p>किताबों का ढेर — सबसे ऊपर रखी किताब सबसे पहले उठाई जा सकती है, नीचे वाली नहीं।</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Concepts -->
+        <section class="concepts-section">
+            <div class="section-header centered">
+                <h2>
+                    <span class="section-icon">🎯</span>
+                    Key Concepts / मुख्य बिंदु
+                </h2>
+            </div>
+            <div class="concepts-grid">
+                <div class="concept-item">
+                    <div class="concept-num">01</div>
+                    <div class="concept-text">
+                        <h4>LIFO Principle</h4>
+                        <p>Last In, First Out — जो element सबसे बाद में आता है, वो सबसे पहले निकलता है।</p>
+                    </div>
+                </div>
+                <div class="concept-item">
+                    <div class="concept-num">02</div>
+                    <div class="concept-text">
+                        <h4>TOP Variable</h4>
+                        <p>TOP हमेशा stack के सबसे ऊपरी element की position बताता है। Empty stack में TOP = -1 होता है।
+                        </p>
+                    </div>
+                </div>
+                <div class="concept-item">
+                    <div class="concept-num">03</div>
+                    <div class="concept-text">
+                        <h4>Overflow Condition</h4>
+                        <p>जब stack पूरा भरा हो (TOP = MAX-1) और push करें, तो Stack Overflow होता है।</p>
+                    </div>
+                </div>
+                <div class="concept-item">
+                    <div class="concept-num">04</div>
+                    <div class="concept-text">
+                        <h4>Underflow Condition</h4>
+                        <p>जब stack खाली हो (TOP = -1) और pop करें, तो Stack Underflow होता है।</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Error Modal Dialog -->
+    <div class="modal-overlay" id="errorModal">
+        <div class="modal-card">
+            <div class="modal-icon" id="modalIcon">⚠️</div>
+            <h3 class="modal-title" id="modalTitle">Error</h3>
+            <p class="modal-message" id="modalMessage">Something went wrong.</p>
+            <div class="modal-details" id="modalDetails"></div>
+            <button class="modal-close-btn" onclick="closeModal()">
+                <span>OK, Got it!</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Made with ❤️ for RBSE Class 12th Students | @ paremeshwer suthar</p>
+    </footer>
+
+    <script src="script.js?v=2"></script>
+</body>
+
+</html>
